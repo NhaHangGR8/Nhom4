@@ -26,7 +26,7 @@ public class RegisterPage extends JPanel {
 
     private void setupUI() {
         setLayout(new GridBagLayout());
-        setBackground(new Color(230, 240, 245)); // Light blueish-gray background
+        setBackground(new Color(240, 248, 255)); // Light blueish-gray background
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10); // Padding around components

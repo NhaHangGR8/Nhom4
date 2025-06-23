@@ -24,22 +24,41 @@ public class AdminPage extends JFrame {
         this.tableListPageInstance = new TableListPage(); // Create a single instance
 
         setTitle("Trang quản trị Admin");
-        setSize(450, 400); // Tăng kích thước để phù hợp với các nút mới
+        setSize(450, 550); // Tăng kích thước để phù hợp với các nút mới
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new GridLayout(5, 1, 15, 15)); // Thay đổi GridLayout thành 5 hàng, 1 cột
+        setLayout(new GridLayout(8, 1, 15, 15)); // Thay đổi GridLayout thành 8 hàng, 1 cột để thêm các nút mới
 
         // Cấu hình các nút với style nhất quán
         Font buttonFont = new Font("Arial", Font.BOLD, 16);
         Dimension buttonSize = new Dimension(250, 50); // Kích thước cố định cho nút
 
-        JButton addDishButton = new JButton("Thêm/Sửa món ăn");
+        // Nút Thêm món ăn
+        JButton addDishButton = new JButton("Thêm món ăn");
         addDishButton.setFont(buttonFont);
         addDishButton.setPreferredSize(buttonSize);
         addDishButton.setBackground(new Color(144, 238, 144)); // LightGreen
         addDishButton.setForeground(Color.BLACK);
         addDishButton.setFocusPainted(false);
         addDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
+
+        // Nút Sửa món ăn
+        JButton editDishButton = new JButton("Sửa món ăn");
+        editDishButton.setFont(buttonFont);
+        editDishButton.setPreferredSize(buttonSize);
+        editDishButton.setBackground(new Color(255, 255, 153)); // Light Yellow
+        editDishButton.setForeground(Color.BLACK);
+        editDishButton.setFocusPainted(false);
+        editDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
+
+        // Nút Xóa món ăn
+        JButton deleteDishButton = new JButton("Xóa món ăn");
+        deleteDishButton.setFont(buttonFont);
+        deleteDishButton.setPreferredSize(buttonSize);
+        deleteDishButton.setBackground(new Color(255, 153, 153)); // Light Red
+        deleteDishButton.setForeground(Color.BLACK);
+        deleteDishButton.setFocusPainted(false);
+        deleteDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
 
         JButton viewStatsButton = new JButton("Xem thống kê");
         viewStatsButton.setFont(buttonFont);
@@ -65,7 +84,6 @@ public class AdminPage extends JFrame {
         paymentBtn.setFocusPainted(false);
         paymentBtn.setBorder(BorderFactory.createRaisedBevelBorder());
 
-
         JButton viewTableStatusButton = new JButton("Xem Trạng Thái Bàn");
         viewTableStatusButton.setFont(buttonFont);
         viewTableStatusButton.setPreferredSize(buttonSize);
@@ -82,13 +100,10 @@ public class AdminPage extends JFrame {
         exitButton.setFocusPainted(false);
         exitButton.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        // Panel để chứa các nút, căn giữa
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 15)); // Center align buttons
-        buttonPanel.setBackground(new Color(34, 139, 34)); // Forest Green
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); // Padding
-
+        // Thêm các nút vào JFrame theo thứ tự mới
         add(addDishButton);
+        add(editDishButton);
+        add(deleteDishButton);
         add(viewStatsButton);
         add(manageReservationsButton);
         add(paymentBtn);
@@ -99,6 +114,19 @@ public class AdminPage extends JFrame {
         addDishButton.addActionListener(e -> {
             AddMenuItemDialog dialog = new AddMenuItemDialog(this, "Thêm món ăn mới", true);
             dialog.setVisible(true);
+            // Có thể thêm logic làm mới bảng món ăn nếu AdminPage có hiển thị danh sách món
+        });
+
+        editDishButton.addActionListener(e -> {
+            EditDishDialog dialog = new EditDishDialog(this, "Sửa món ăn", true);
+            dialog.setVisible(true);
+            // Có thể thêm logic làm mới bảng món ăn nếu AdminPage có hiển thị danh sách món
+        });
+
+        deleteDishButton.addActionListener(e -> {
+            DeleteDishDialog dialog = new DeleteDishDialog(this, "Xóa món ăn", true);
+            dialog.setVisible(true);
+            // Có thể thêm logic làm mới bảng món ăn nếu AdminPage có hiển thị danh sách món
         });
 
         viewStatsButton.addActionListener(e -> {

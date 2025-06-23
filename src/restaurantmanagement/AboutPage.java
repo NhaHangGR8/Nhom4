@@ -66,7 +66,7 @@ public class AboutPage extends JPanel {
 
         // Tiêu đề trang
         JLabel titleLabel = new JLabel(titleText, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 38));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 38));
         titleLabel.setForeground(new Color(139, 69, 19)); // SaddleBrown
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(titleLabel);
@@ -74,7 +74,7 @@ public class AboutPage extends JPanel {
 
         // Câu chuyện nhà hàng
         JLabel restaurantStoryTitleLabel = new JLabel(restaurantStoryTitle, SwingConstants.CENTER);
-        restaurantStoryTitleLabel.setFont(new Font("Arial", Font.BOLD, 26));
+        restaurantStoryTitleLabel.setFont(new Font("Arial", Font.BOLD, 35));
         restaurantStoryTitleLabel.setForeground(new Color(85, 107, 47)); // DarkOliveGreen
         restaurantStoryTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(restaurantStoryTitleLabel);

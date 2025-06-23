@@ -8,7 +8,7 @@ import java.sql.*;
 
 public class LoginPage extends JPanel {
 
-    private Main mainFrame;
+    private Main mainFrame; // Đảm bảo rằng mainFrame được truyền vào qua constructor
 
     private JTextField usernameField;
     private JPasswordField passwordField;
@@ -17,7 +17,6 @@ public class LoginPage extends JPanel {
     private JLabel messageLabel;
 
     // Constructor mặc định dùng trong chương trình có sẵn frame
-    // This is now the ONLY constructor.
     public LoginPage(Main mainFrame) {
         this.mainFrame = mainFrame;
         setupUI();
@@ -31,7 +30,8 @@ public class LoginPage extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         JLabel titleLabel = new JLabel("Nhà Hàng Gr8");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 34));
+        titleLabel.setForeground(new Color(41, 128, 185));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -57,8 +57,8 @@ public class LoginPage extends JPanel {
         gbc.gridy = 3;
         gbc.gridwidth = 2;
         loginButton = new JButton("Đăng nhập");
-        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        loginButton.setBackground(new Color(60, 179, 113)); // MediumSeaGreen
+        loginButton.setFont(new Font("Arial", Font.BOLD, 16));
+        loginButton.setBackground(new Color(46, 204, 113)); // MediumSeaGreen
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
         loginButton.setPreferredSize(new Dimension(150, 40));
@@ -72,16 +72,21 @@ public class LoginPage extends JPanel {
 
         gbc.gridy = 4;
         registerButton = new JButton("Đăng ký");
-        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
-        registerButton.setBackground(new Color(70, 130, 180)); // SteelBlue
+        registerButton.setFont(new Font("Arial", Font.BOLD, 16));
+        registerButton.setBackground(new Color(41, 128, 185)); // SteelBlue
         registerButton.setForeground(Color.WHITE);
         registerButton.setFocusPainted(false);
         registerButton.setPreferredSize(new Dimension(150, 40));
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Logic to open registration form
-                JOptionPane.showMessageDialog(LoginPage.this, "Chức năng đăng ký đang được phát triển.");
+                // Thay đổi duy nhất ở đây: gọi showPanel của mainFrame để chuyển sang trang "Register"
+                if (mainFrame != null) {
+                    mainFrame.showPanel("Register");
+                } else {
+                    // Xử lý trường hợp mainFrame là null (chỉ xảy ra khi test riêng lẻ LoginPage)
+                    JOptionPane.showMessageDialog(LoginPage.this, "Không thể chuyển đến trang đăng ký. mainFrame không được khởi tạo.");
+                }
             }
         });
         add(registerButton, gbc);
@@ -123,10 +128,8 @@ public class LoginPage extends JPanel {
                     messageLabel.setForeground(new Color(34, 139, 34));
                     JOptionPane.showMessageDialog(this, "Đăng nhập thành công với vai trò: " + role, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     if (mainFrame != null) {
-                        mainFrame.showPanel("Home"); // This call now assumes mainFrame is not null
+                        mainFrame.showPanel("Home"); // Chuyển đến trang chủ sau khi đăng nhập thành công
                     } else {
-                        // This case should ideally not happen in the main application flow
-                        // but is kept for robust error handling.
                         System.out.println("mainFrame is null — không thể chuyển trang. " +
                                            "Đảm bảo LoginPage được khởi tạo với một instance Main hợp lệ.");
                         JOptionPane.showMessageDialog(this, "Đăng nhập thành công nhưng không thể chuyển trang. " +
@@ -153,15 +156,12 @@ public class LoginPage extends JPanel {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // For testing LoginPage in isolation.
-            // In a real application, LoginPage should be created with a valid Main instance.
             JFrame testFrame = new JFrame("Test Đăng nhập");
             testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             testFrame.setSize(500, 400);
             testFrame.setLocationRelativeTo(null);
 
-            // Passing null for Main to simulate a standalone test environment.
-            // The login action in this test will report 'mainFrame is null' but won't crash.
+            // Khi test riêng lẻ, mainFrame là null. Trong ứng dụng thực tế, nó sẽ là một instance của Main.
             LoginPage testLoginPage = new LoginPage(null);
             testFrame.setContentPane(testLoginPage);
             testFrame.setVisible(true);
