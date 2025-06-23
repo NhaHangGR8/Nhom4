@@ -32,7 +32,7 @@ public class AdminPage extends JFrame {
         Font buttonFont = new Font("Arial", Font.BOLD, 16);
         Dimension buttonSize = new Dimension(250, 50); // Kích thước cố định cho nút
 
-        JButton addDishButton = new JButton("➕ Thêm/Sửa món ăn");
+        JButton addDishButton = new JButton("Thêm/Sửa món ăn");
         addDishButton.setFont(buttonFont);
         addDishButton.setPreferredSize(buttonSize);
         addDishButton.setBackground(new Color(144, 238, 144)); // LightGreen
@@ -40,7 +40,7 @@ public class AdminPage extends JFrame {
         addDishButton.setFocusPainted(false);
         addDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JButton viewStatsButton = new JButton("📊 Xem thống kê");
+        JButton viewStatsButton = new JButton("Xem thống kê");
         viewStatsButton.setFont(buttonFont);
         viewStatsButton.setPreferredSize(buttonSize);
         viewStatsButton.setBackground(new Color(144, 238, 144)); // LightGreen
@@ -48,7 +48,7 @@ public class AdminPage extends JFrame {
         viewStatsButton.setFocusPainted(false);
         viewStatsButton.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JButton manageReservationsButton = new JButton("📋 Quản lý Hủy Đặt Bàn");
+        JButton manageReservationsButton = new JButton("Quản lý Hủy Đặt Bàn");
         manageReservationsButton.setFont(buttonFont);
         manageReservationsButton.setPreferredSize(buttonSize);
         manageReservationsButton.setBackground(new Color(144, 238, 144)); // LightGreen
@@ -56,7 +56,7 @@ public class AdminPage extends JFrame {
         manageReservationsButton.setFocusPainted(false);
         manageReservationsButton.setBorder(BorderFactory.createRaisedBevelBorder());
         
-        JButton viewTableStatusButton = new JButton("📅 Xem Trạng Thái Bàn");
+        JButton viewTableStatusButton = new JButton("Xem Trạng Thái Bàn");
         viewTableStatusButton.setFont(buttonFont);
         viewTableStatusButton.setPreferredSize(buttonSize);
         viewTableStatusButton.setBackground(new Color(144, 238, 144)); // LightGreen
@@ -64,7 +64,7 @@ public class AdminPage extends JFrame {
         viewTableStatusButton.setFocusPainted(false);
         viewTableStatusButton.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        JButton exitButton = new JButton("❌ Thoát");
+        JButton exitButton = new JButton("Thoát");
         exitButton.setFont(buttonFont);
         exitButton.setPreferredSize(buttonSize);
         exitButton.setBackground(new Color(255, 99, 71)); // Tomato
