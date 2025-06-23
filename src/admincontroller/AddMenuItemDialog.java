@@ -47,7 +47,7 @@ public class AddMenuItemDialog extends JDialog { // Đã đổi tên class thàn
 
     private void setupUI() {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
 
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();

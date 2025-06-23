@@ -15,7 +15,6 @@ public class TableListPage extends JFrame {
 
     private JTable tableStatusTable;
     private DefaultTableModel tableModel;
-    // Removed 'private Object guests;' as it was causing incorrect data display.
 
     public TableListPage() {
         setTitle("Danh Sách Bàn (Admin)");
@@ -34,42 +33,32 @@ public class TableListPage extends JFrame {
 
         JLabel headerLabel = new JLabel("Trạng Thái Các Bàn Trong Nhà Hàng", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        headerLabel.setForeground(new Color(34, 139, 34)); // Forest Green
+        headerLabel.setForeground(new Color(0, 102, 0)); // Dark Green
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
-        String[] columnNames = {"ID Bàn", "Vị trí", "Trạng thái", "Số khách hiện tại"};
+        // Table setup
+        String[] columnNames = {"ID Bàn", "Vị Trí", "Trạng Thái", "Số Khách"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // All cells are not editable
+                return false; // Make table cells non-editable
             }
         };
-        tableStatusTable = new JTable(tableModel); // Use tableModel
-        tableStatusTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        tableStatusTable = new JTable(tableModel);
+        tableStatusTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tableStatusTable.setRowHeight(25);
-        tableStatusTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
-        tableStatusTable.getTableHeader().setBackground(new Color(144, 238, 144)); // Light Green
+        tableStatusTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tableStatusTable.getTableHeader().setBackground(new Color(173, 216, 230)); // Light Blue
         tableStatusTable.getTableHeader().setForeground(Color.BLACK);
-        tableStatusTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableStatusTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Allow only single row selection
 
         JScrollPane scrollPane = new JScrollPane(tableStatusTable);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(170, 170, 170), 1));
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        JButton refreshButton = new JButton("Làm mới trạng thái bàn");
-        refreshButton.setFont(new Font("Arial", Font.BOLD, 16));
-        refreshButton.setBackground(new Color(60, 179, 113)); // Medium Sea Green
-        refreshButton.setForeground(Color.WHITE);
-        refreshButton.addActionListener(e -> loadTableData()); // Call loadTableData on refresh
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(mainPanel.getBackground());
-        buttonPanel.add(refreshButton);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    public void loadTableData() {
+    private void loadTableData() {
         tableModel.setRowCount(0); // Clear existing data
 
         try (Connection conn = DatabaseHelper.getConnection()) {
@@ -78,7 +67,7 @@ public class TableListPage extends JFrame {
                     (
                         SELECT r.number_of_guests
                         FROM reservations r
-                        WHERE r.table_id = t.id AND r.status = 'active'
+                        WHERE r.table_id = t.id AND r.status IN ('active', 'confirmed', 'pending') -- Thay đổi ở đây
                         ORDER BY r.created_at DESC
                         LIMIT 1
                     ) AS number_of_guests
@@ -93,9 +82,21 @@ public class TableListPage extends JFrame {
                 Vector<Object> row = new Vector<>();
                 row.add(rs.getInt("id"));
                 row.add(rs.getString("location"));
-                row.add(rs.getString("status"));
-                // Correctly retrieve number_of_guests from the ResultSet
-                Object guestInfo = rs.wasNull() ? "—" : rs.getInt("number_of_guests");
+                String tableStatus = rs.getString("status");
+                row.add(tableStatus);
+
+                Object guestInfo;
+                // Hiển thị số khách nếu bàn ở trạng thái 'occupied' hoặc 'reserved'
+                if ("occupied".equalsIgnoreCase(tableStatus) || "reserved".equalsIgnoreCase(tableStatus)) {
+                    int numberOfGuests = rs.getInt("number_of_guests");
+                    if (rs.wasNull()) {
+                        guestInfo = "— (Không tìm thấy thông tin khách)"; // Có thể thông báo rõ hơn nếu không có
+                    } else {
+                        guestInfo = numberOfGuests;
+                    }
+                } else {
+                    guestInfo = "—"; // Bàn trống hoặc trạng thái khác
+                }
                 row.add(guestInfo);
                 tableModel.addRow(row);
             }
