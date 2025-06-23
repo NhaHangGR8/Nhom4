@@ -417,6 +417,29 @@ public class ReservationPage extends JPanel {
         selectedDishesArea.setText(sb.toString());
     }
 
+    private double calculateTotalPrice(Connection conn) throws SQLException {
+        double total = 0.0;
+        if (currentSelectedDishes == null || currentSelectedDishes.isEmpty()) {
+            return total;
+        }
+
+        // Get prices for selected dishes from the database
+        // Assuming 'dishes' table has 'id' and 'price' columns
+        String sql = "SELECT price FROM dishes WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            for (DishOrder order : currentSelectedDishes) {
+                pstmt.setInt(1, order.getDish().getId());
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    double price = rs.getDouble("price");
+                    total += price * order.getQuantity();
+                }
+                rs.close(); // Close ResultSet for each iteration
+            }
+        }
+        return total;
+    }
+
     private void submitReservation() {
         String name = nameField.getText().trim();
         String email = emailField.getText().trim();
@@ -495,13 +518,15 @@ public class ReservationPage extends JPanel {
                 return;
             }
 
+            double totalPrice = calculateTotalPrice(conn); // Calculate total price here
+
             // Thêm vào bảng reservations
             String insertSql = """
                 INSERT INTO reservations (
                     customer_name, customer_email, customer_phone,
                     reservation_date, reservation_time, number_of_guests,
-                    special_requests, table_id, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')
+                    special_requests, table_id, status, total_price
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?)
             """; // Changed status to 'confirmed' to match existing logic
             pstmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, name); // Use 'name'
@@ -512,6 +537,7 @@ public class ReservationPage extends JPanel {
             pstmt.setInt(6, guests); // Use 'guests'
             pstmt.setString(7, fullRequests.toString()); // Use 'fullRequests'
             pstmt.setInt(8, selectedTableId); // Use 'selectedTableId'
+            pstmt.setDouble(9, totalPrice); // Set total_price here
             
             int rowsAffected = pstmt.executeUpdate();
 

@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import restaurantmanagement.ReservationPage;
 import restaurantmanagement.TableStatusRefreshListener; // Import the interface
+import admincontroller.PaymentManagementPage;
 
 public class AdminPage extends JFrame {
 
@@ -55,7 +56,16 @@ public class AdminPage extends JFrame {
         manageReservationsButton.setForeground(Color.BLACK);
         manageReservationsButton.setFocusPainted(false);
         manageReservationsButton.setBorder(BorderFactory.createRaisedBevelBorder());
-        
+
+        JButton paymentBtn = new JButton("Quản lý Thanh toán");
+        paymentBtn.setFont(buttonFont);
+        paymentBtn.setPreferredSize(buttonSize);
+        paymentBtn.setBackground(new Color(144, 238, 144)); // Green
+        paymentBtn.setForeground(Color.BLACK);
+        paymentBtn.setFocusPainted(false);
+        paymentBtn.setBorder(BorderFactory.createRaisedBevelBorder());
+
+
         JButton viewTableStatusButton = new JButton("Xem Trạng Thái Bàn");
         viewTableStatusButton.setFont(buttonFont);
         viewTableStatusButton.setPreferredSize(buttonSize);
@@ -81,6 +91,7 @@ public class AdminPage extends JFrame {
         add(addDishButton);
         add(viewStatsButton);
         add(manageReservationsButton);
+        add(paymentBtn);
         add(viewTableStatusButton);
         add(exitButton);
 
@@ -95,13 +106,15 @@ public class AdminPage extends JFrame {
             statsPage.setVisible(true);
         });
 
+        // Pass tableListPageInstance to PaymentManagementPage
+        paymentBtn.addActionListener(e -> {
+            PaymentManagementPage paymentPage = new PaymentManagementPage(tableListPageInstance); // Pass the instance
+            paymentPage.setVisible(true);
+        });
+
         // Action Listener for "Quản lý Hủy Đặt Bàn" button
         manageReservationsButton.addActionListener(e -> {
             // Pass the TableListPage instance directly as the refresh listener
-            // Also, pass reservationPageInstance if AdminTableCancellationPage needs to refresh it too.
-            // If AdminTableCancellationPage only refreshes tables, then just tableListPageInstance is fine.
-            // Assuming AdminTableCancellationPage's constructor needs TableStatusRefreshListener
-            // and reservationPageInstance also implements it:
             AdminTableCancellationPage adminCancelPage = new AdminTableCancellationPage(tableListPageInstance); // Passing TableListPage
             adminCancelPage.setVisible(true);
         });

@@ -28,7 +28,11 @@ public class AdminTableCancellationPage extends JFrame {
     private JTable reservationsTable;
     private DefaultTableModel reservationsTableModel;
 
-    public AdminTableCancellationPage(TableListPage tableListPageInstance) {
+    // Add a reference to TableListPage
+    private TableListPage tableListPageInstance; //
+
+    public AdminTableCancellationPage(TableListPage tableListPageInstance) { // Constructor now accepts TableListPage
+        this.tableListPageInstance = tableListPageInstance; // Store the instance
         setTitle("Quản lý Hủy Đặt Bàn (Admin)");
         setSize(800, 600);
         setLocationRelativeTo(null);
@@ -159,8 +163,10 @@ public class AdminTableCancellationPage extends JFrame {
         refreshButton.addActionListener(e -> loadReservationsIntoTable());
         JPanel refreshPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         refreshPanel.setBackground(tableListPanel.getBackground());
-        refreshPanel.add(refreshButton);
-        tableListPanel.add(refreshPanel, BorderLayout.SOUTH);
+        // CORRECTED LINE: Add the refreshButton to refreshPanel
+        refreshPanel.add(refreshButton); // Corrected from refreshPanel.add(refreshPanel, BorderLayout.SOUTH);
+        tableListPanel.add(refreshPanel, BorderLayout.SOUTH); // Add refreshPanel to tableListPanel
+
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topFormPanel, tableListPanel);
         splitPane.setResizeWeight(0.3); // Give more space to the table list
@@ -204,7 +210,23 @@ public class AdminTableCancellationPage extends JFrame {
         PreparedStatement pstmt = null;
         try {
             conn = DatabaseHelper.getConnection();
-            String sql = "UPDATE reservations SET status = 'cancelled' WHERE customer_email = ? AND customer_phone = ? AND reservation_date = ? AND status = 'confirmed'";
+            conn.setAutoCommit(false); // Start transaction
+
+            // Get table_id before canceling the reservation
+            String getTableIdSql = "SELECT table_id FROM reservations WHERE customer_email = ? AND customer_phone = ? AND reservation_date = ? AND status = 'confirmed' AND payment_status != 'paid'"; //
+            PreparedStatement getTableIdStmt = conn.prepareStatement(getTableIdSql); //
+            getTableIdStmt.setString(1, email); //
+            getTableIdStmt.setString(2, phone); //
+            getTableIdStmt.setDate(3, java.sql.Date.valueOf(date)); //
+            ResultSet rs = getTableIdStmt.executeQuery(); //
+            int tableId = -1; //
+            if (rs.next()) { //
+                tableId = rs.getInt("table_id"); //
+            }
+            rs.close(); //
+            getTableIdStmt.close(); //
+
+            String sql = "UPDATE reservations SET status = 'cancelled' WHERE customer_email = ? AND customer_phone = ? AND reservation_date = ? AND status = 'confirmed' AND payment_status != 'paid'";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, email);
             pstmt.setString(2, phone);
@@ -213,27 +235,51 @@ public class AdminTableCancellationPage extends JFrame {
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
+                // If a reservation was found and cancelled, update the table status
+                if (tableId != -1) { //
+                    String updateTableSql = "UPDATE tables SET status = 'available' WHERE id = ?"; //
+                    PreparedStatement updateTableStmt = conn.prepareStatement(updateTableSql); //
+                    updateTableStmt.setInt(1, tableId); //
+                    updateTableStmt.executeUpdate(); //
+                    updateTableStmt.close(); //
+                }
+
+                conn.commit(); // Commit transaction
                 cancelStatusLabel.setText("Hủy đặt bàn thành công!");
                 cancelStatusLabel.setForeground(new Color(34, 139, 34)); // Forest Green
                 JOptionPane.showMessageDialog(this, "Đặt bàn đã được hủy thành công.", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 loadReservationsIntoTable(); // Refresh the table
+                if (tableListPageInstance != null) { // Refresh TableListPage
+                    tableListPageInstance.refreshTableStatus(); //
+                }
             } else {
+                conn.rollback(); // Rollback if no reservation was found or cancelled
                 cancelStatusLabel.setText("Không tìm thấy đặt bàn hoặc đã hủy.");
                 cancelStatusLabel.setForeground(Color.ORANGE);
                 JOptionPane.showMessageDialog(this, "Không tìm thấy đặt bàn phù hợp để hủy hoặc đặt bàn đã được hủy trước đó.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
         } catch (SQLException ex) {
+            try {
+                if (conn != null) conn.rollback(); // Rollback on error
+            } catch (SQLException e) {
+                /* ignore */
+            }
             ex.printStackTrace();
             cancelStatusLabel.setText("Lỗi CSDL khi hủy: " + ex.getMessage());
             cancelStatusLabel.setForeground(Color.RED);
             JOptionPane.showMessageDialog(this, "Lỗi CSDL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         } finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true); // Reset auto-commit
+            } catch (SQLException e) {
+                /* ignore */
+            }
             DatabaseHelper.closeConnection(conn);
             try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { /* ignore */ }
         }
     }
 
-    // New method to cancel reservation by table ID
+    // Method to cancel reservation by table ID
     private void cancelReservationByTableId() {
         int tableId;
         try {
@@ -252,14 +298,16 @@ public class AdminTableCancellationPage extends JFrame {
             Connection conn = null;
             try {
                 conn = DatabaseHelper.getConnection();
+                conn.setAutoCommit(false); // Start transaction
 
                 // Kiểm tra xem có đặt bàn active nào không
-                String checkSql = "SELECT id FROM reservations WHERE table_id = ? AND status = 'confirmed'"; // Changed 'active' to 'confirmed' for consistency
+                String checkSql = "SELECT id FROM reservations WHERE table_id = ? AND status = 'confirmed' AND payment_status != 'paid'";
                 PreparedStatement checkStmt = conn.prepareStatement(checkSql);
                 checkStmt.setInt(1, tableId);
                 ResultSet rs = checkStmt.executeQuery();
 
                 if (!rs.next()) {
+                    conn.rollback(); //
                     tableIdCancelStatusLabel.setText("Không có đặt bàn nào đang hoạt động cho bàn này.");
                     tableIdCancelStatusLabel.setForeground(Color.ORANGE);
                     JOptionPane.showMessageDialog(this, "Không có đặt bàn nào đang hoạt động cho bàn này.", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -284,16 +332,30 @@ public class AdminTableCancellationPage extends JFrame {
                 updateTableStmt.executeUpdate();
                 updateTableStmt.close();
 
+                conn.commit(); // Commit transaction
                 tableIdCancelStatusLabel.setText("Hủy đặt bàn thành công cho Bàn ID: " + tableId);
                 tableIdCancelStatusLabel.setForeground(new Color(34, 139, 34)); // Forest Green
                 JOptionPane.showMessageDialog(this, "Hủy đặt bàn thành công cho Bàn ID: " + tableId + ".", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 loadReservationsIntoTable(); // Refresh the table
+                if (tableListPageInstance != null) { // Refresh TableListPage
+                    tableListPageInstance.refreshTableStatus(); //
+                }
             } catch (SQLException ex) {
+                try {
+                    if (conn != null) conn.rollback(); // Rollback on error
+                } catch (SQLException e) {
+                    /* ignore */
+                }
                 ex.printStackTrace();
                 tableIdCancelStatusLabel.setText("Lỗi khi hủy đặt bàn: " + ex.getMessage());
                 tableIdCancelStatusLabel.setForeground(Color.RED);
                 JOptionPane.showMessageDialog(this, "Lỗi khi hủy đặt bàn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             } finally {
+                try {
+                    if (conn != null) conn.setAutoCommit(true); // Reset auto-commit
+                } catch (SQLException e) {
+                    /* ignore */
+                }
                 DatabaseHelper.closeConnection(conn);
             }
         }

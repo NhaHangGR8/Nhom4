@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class NavigationPanel extends JPanel {
 
@@ -43,16 +45,20 @@ public class NavigationPanel extends JPanel {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setForeground(Color.WHITE);
-        button.setBackground(new Color(52, 73, 94));
+        button.setBackground(new Color(52, 73, 94)); // Default background
         button.setFocusPainted(false);
         button.setBorderPainted(false);
-        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(76, 110, 142));
+        // Hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent evt) {
+                button.setBackground(new Color(60, 80, 100)); // Darker on hover
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            @Override
+            public void mouseExited(MouseEvent evt) {
                 button.setBackground(new Color(52, 73, 94));
             }
         });
@@ -92,7 +98,20 @@ public class NavigationPanel extends JPanel {
     }
 
     private void logout() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-        new LoginPage(); // Gọi constructor không đối số
+        LoginSession.logout(); // Clear the session
+
+        // Instead of disposing the main frame, instruct it to show the login panel.
+        if (mainFrame != null) {
+            mainFrame.showPanel("Login");
+            // You might also want to clear fields on the LoginPage here,
+            // but that would require a public method in LoginPage and access to its instance
+            // from Main, or a dedicated method in Main to handle login page reset.
+        } else {
+            System.out.println("Lỗi: mainFrame là null trong NavigationPanel. Không thể chuyển về trang đăng nhập.");
+            JOptionPane.showMessageDialog(this,
+                    "Không thể trở về trang đăng nhập. Vui lòng khởi động lại ứng dụng.",
+                    "Lỗi Đăng Xuất",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

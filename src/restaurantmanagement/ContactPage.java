@@ -55,15 +55,15 @@ public class ContactPage extends JPanel {
 
         // Address
         gbc.gridy = 0;
-        contactInfoPanel.add(createInfoLabel(address, loadIcon("resources/images/location.png", 30, 30)), gbc);
+        contactInfoPanel.add(createInfoLabel(address, loadIcon("/resources/images/location.png", 30, 30)), gbc);
 
         // Phone
         gbc.gridy = 1;
-        contactInfoPanel.add(createInfoLabel(phone, loadIcon("resources/images/phone.png", 30, 30)), gbc);
+        contactInfoPanel.add(createInfoLabel(phone, loadIcon("/resources/images/phone.png", 30, 30)), gbc);
 
         // Email
         gbc.gridy = 2;
-        contactInfoPanel.add(createInfoLabel(email, loadIcon("resources/images/email.png", 30, 30)), gbc);
+        contactInfoPanel.add(createInfoLabel(email, loadIcon("/resources/images/email.png", 30, 30)), gbc);
 
         add(contactInfoPanel);
         add(Box.createVerticalStrut(40)); // Space after contact info

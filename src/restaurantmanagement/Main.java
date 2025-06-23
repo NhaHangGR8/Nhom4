@@ -21,7 +21,7 @@ public class Main extends JFrame {
     private ContactPage contactPage;
 
     public Main() {
-        setTitle("Hệ Thống Quản Lý Nhà Hàng GR8");
+        setTitle("Nhà Hàng GR8");
         setSize(900, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

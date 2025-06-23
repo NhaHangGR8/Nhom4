@@ -2,6 +2,8 @@ package restaurantmanagement;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 
 public class LoginPage extends JPanel {
@@ -14,19 +16,8 @@ public class LoginPage extends JPanel {
     private JButton registerButton;
     private JLabel messageLabel;
 
-    // Constructor cho trường hợp đăng nhập lại sau khi đăng xuất
-    public LoginPage() {
-        JFrame frame = new JFrame("Đăng nhập");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 400);
-        frame.setLocationRelativeTo(null);
-        frame.setContentPane(this);
-        this.mainFrame = null;
-        setupUI();
-        frame.setVisible(true);
-    }
-
     // Constructor mặc định dùng trong chương trình có sẵn frame
+    // This is now the ONLY constructor.
     public LoginPage(Main mainFrame) {
         this.mainFrame = mainFrame;
         setupUI();
@@ -39,81 +30,75 @@ public class LoginPage extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        JLabel titleLabel = new JLabel("Đăng nhập Hệ Thống Quản Lý Nhà Hàng");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(60, 60, 60));
+        JLabel titleLabel = new JLabel("Nhà Hàng Gr8");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
         add(titleLabel, gbc);
 
-        JLabel usernameLabel = new JLabel("Tên đăng nhập:");
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        add(usernameLabel, gbc);
 
-        usernameField = new JTextField(20);
-        usernameField.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        add(new JLabel("Tên đăng nhập:"), gbc);
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
+        usernameField = new JTextField(15);
         add(usernameField, gbc);
 
-        JLabel passwordLabel = new JLabel("Mật khẩu:");
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        add(passwordLabel, gbc);
-
-        passwordField = new JPasswordField(20);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
+        add(new JLabel("Mật khẩu:"), gbc);
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
+        passwordField = new JPasswordField(15);
         add(passwordField, gbc);
 
-        messageLabel = new JLabel("");
-        messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        messageLabel.setForeground(Color.RED);
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(messageLabel, gbc);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        buttonPanel.setBackground(getBackground());
-
-        loginButton = new JButton("Đăng Nhập");
-        loginButton.setFont(new Font("Arial", Font.BOLD, 16));
-        loginButton.setBackground(new Color(70, 130, 180));
+        loginButton = new JButton("Đăng nhập");
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setBackground(new Color(60, 179, 113)); // MediumSeaGreen
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
-        loginButton.addActionListener(e -> authenticateUser());
-        buttonPanel.add(loginButton);
+        loginButton.setPreferredSize(new Dimension(150, 40));
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                attemptLogin();
+            }
+        });
+        add(loginButton, gbc);
 
-        registerButton = new JButton("Đăng Ký");
-        registerButton.setFont(new Font("Arial", Font.BOLD, 16));
-        registerButton.setBackground(new Color(100, 149, 237));
+        gbc.gridy = 4;
+        registerButton = new JButton("Đăng ký");
+        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        registerButton.setBackground(new Color(70, 130, 180)); // SteelBlue
         registerButton.setForeground(Color.WHITE);
         registerButton.setFocusPainted(false);
-        registerButton.addActionListener(e -> mainFrame.showPanel("Register"));
-        buttonPanel.add(registerButton);
+        registerButton.setPreferredSize(new Dimension(150, 40));
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Logic to open registration form
+                JOptionPane.showMessageDialog(LoginPage.this, "Chức năng đăng ký đang được phát triển.");
+            }
+        });
+        add(registerButton, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        add(buttonPanel, gbc);
+        gbc.gridy = 5;
+        messageLabel = new JLabel("", SwingConstants.CENTER);
+        messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        messageLabel.setForeground(Color.RED);
+        add(messageLabel, gbc);
     }
 
-    private void authenticateUser() {
+    private void attemptLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
-            messageLabel.setText("Vui lòng nhập tên đăng nhập và mật khẩu.");
+            messageLabel.setText("Vui lòng điền đầy đủ tên đăng nhập và mật khẩu.");
             return;
         }
 
@@ -138,9 +123,14 @@ public class LoginPage extends JPanel {
                     messageLabel.setForeground(new Color(34, 139, 34));
                     JOptionPane.showMessageDialog(this, "Đăng nhập thành công với vai trò: " + role, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     if (mainFrame != null) {
-                        mainFrame.showPanel("Home");
+                        mainFrame.showPanel("Home"); // This call now assumes mainFrame is not null
                     } else {
-                        System.out.println("mainFrame is null — không thể chuyển trang.");
+                        // This case should ideally not happen in the main application flow
+                        // but is kept for robust error handling.
+                        System.out.println("mainFrame is null — không thể chuyển trang. " +
+                                           "Đảm bảo LoginPage được khởi tạo với một instance Main hợp lệ.");
+                        JOptionPane.showMessageDialog(this, "Đăng nhập thành công nhưng không thể chuyển trang. " +
+                                "Vui lòng khởi động lại ứng dụng.", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
                     messageLabel.setText("Sai mật khẩu.");
@@ -156,8 +146,25 @@ public class LoginPage extends JPanel {
             messageLabel.setText("Lỗi CSDL: " + ex.getMessage());
         } finally {
             DatabaseHelper.closeConnection(conn);
-            try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { }
-            try { if (rs != null) rs.close(); } catch (SQLException e) { }
+            try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { /* ignore */ }
+            try { if (rs != null) rs.close(); } catch (SQLException e) { /* ignore */ }
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // For testing LoginPage in isolation.
+            // In a real application, LoginPage should be created with a valid Main instance.
+            JFrame testFrame = new JFrame("Test Đăng nhập");
+            testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            testFrame.setSize(500, 400);
+            testFrame.setLocationRelativeTo(null);
+
+            // Passing null for Main to simulate a standalone test environment.
+            // The login action in this test will report 'mainFrame is null' but won't crash.
+            LoginPage testLoginPage = new LoginPage(null);
+            testFrame.setContentPane(testLoginPage);
+            testFrame.setVisible(true);
+        });
     }
 }

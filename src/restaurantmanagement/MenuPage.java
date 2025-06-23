@@ -286,5 +286,19 @@ public class MenuPage extends JPanel { // Changed from JFrame to JPanel
         parentPanel.add(sectionPanel);
         parentPanel.add(Box.createVerticalStrut(35)); // Khoảng cách giữa các mục menu
     }
+    public List<Dish> getAppetizers() {
+        return appetizers;
+    }
 
+    public List<Dish> getMainCourses() {
+        return maincourses;
+    }
+
+    public List<Dish> getDesserts() {
+        return desserts;
+    }
+
+    public List<Dish> getBeverages() {
+        return beverages;
+    }
 }

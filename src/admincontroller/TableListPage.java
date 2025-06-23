@@ -14,8 +14,8 @@ import java.util.Vector;
 public class TableListPage extends JFrame {
 
     private JTable tableStatusTable;
-    private DefaultTableModel tableModel; 
-    private Object guests;
+    private DefaultTableModel tableModel;
+    // Removed 'private Object guests;' as it was causing incorrect data display.
 
     public TableListPage() {
         setTitle("Danh Sách Bàn (Admin)");
@@ -37,7 +37,7 @@ public class TableListPage extends JFrame {
         headerLabel.setForeground(new Color(34, 139, 34)); // Forest Green
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
-        String[] columnNames = {"ID Bàn", "Vị trí", "Trạng thái", "Số khách hiện tại"}; 
+        String[] columnNames = {"ID Bàn", "Vị trí", "Trạng thái", "Số khách hiện tại"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -69,8 +69,7 @@ public class TableListPage extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    // Changed method visibility from private to public
-    public void loadTableData() { 
+    public void loadTableData() {
         tableModel.setRowCount(0); // Clear existing data
 
         try (Connection conn = DatabaseHelper.getConnection()) {
@@ -95,14 +94,15 @@ public class TableListPage extends JFrame {
                 row.add(rs.getInt("id"));
                 row.add(rs.getString("location"));
                 row.add(rs.getString("status"));
-                Object guestInfo = rs.wasNull() ? "—" : guests;
+                // Correctly retrieve number_of_guests from the ResultSet
+                Object guestInfo = rs.wasNull() ? "—" : rs.getInt("number_of_guests");
                 row.add(guestInfo);
                 tableModel.addRow(row);
             }
 
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu bàn: " + ex.getMessage()); 
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu bàn: " + ex.getMessage());
         }
     }
 
