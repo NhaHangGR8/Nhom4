@@ -31,7 +31,7 @@ public class LoginPage extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        JLabel titleLabel = new JLabel("Nhà Hàng Gr8");
+        JLabel titleLabel = new JLabel("Hệ Thống Quản Lý Nhà Hàng Gr8");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 34));
         titleLabel.setForeground(new Color(41, 128, 185));
         gbc.gridx = 0;
