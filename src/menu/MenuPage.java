@@ -1,4 +1,4 @@
-package restaurantmanagement;
+package menu;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +15,7 @@ import admincontroller.AddMenuItemDialog; // Import the new AddDishDialog
 import admincontroller.EditDishDialog; // Import EditDishDialog (though MenuPage doesn't directly call it)
 import admincontroller.DeleteDishDialog; // Import DeleteDishDialog (though MenuPage doesn't directly call it)
 import java.io.File;
+import restaurantmanagement.DatabaseHelper;
 
 
 public class MenuPage extends JPanel {

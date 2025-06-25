@@ -1,4 +1,4 @@
-package restaurantmanagement;
+package menu;
 
 public class Dish {
     private int id; // Added ID for database operations

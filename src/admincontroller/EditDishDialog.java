@@ -1,7 +1,7 @@
 package admincontroller;
 
 import restaurantmanagement.DatabaseHelper;
-import restaurantmanagement.Dish;
+import menu.Dish;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;

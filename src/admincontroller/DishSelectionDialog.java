@@ -1,8 +1,8 @@
 package admincontroller;
 
 import restaurantmanagement.DatabaseHelper;
-import restaurantmanagement.Dish;
-import restaurantmanagement.DishOrder;
+import menu.Dish;
+import menu.DishOrder;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

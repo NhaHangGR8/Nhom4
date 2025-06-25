@@ -17,7 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import restaurantmanagement.LoginSession;
+import login_register.LoginSession;
+import menu.DishOrder;
 
 public class ReservationPage extends JPanel {
     private String titleText = "Đặt Bàn Tại Gr8 Restaurant";

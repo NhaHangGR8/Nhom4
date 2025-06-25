@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import login_register.LoginPage;
+import login_register.RegisterPage;
+import menu.MenuPage;
 
 public class Main extends JFrame {
     private JPanel cardPanel;

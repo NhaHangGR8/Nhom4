@@ -1,4 +1,4 @@
-package restaurantmanagement;
+package menu;
 
 public class DishOrder {
     private Dish dish;

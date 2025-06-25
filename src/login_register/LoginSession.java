@@ -1,4 +1,4 @@
-package restaurantmanagement;
+package login_register;
 
 // Lớp này quản lý trạng thái đăng nhập của người dùng.
 public class LoginSession {

@@ -1,10 +1,12 @@
-package restaurantmanagement;
+package login_register;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import restaurantmanagement.DatabaseHelper;
+import restaurantmanagement.Main;
 
 public class LoginPage extends JPanel {
 
