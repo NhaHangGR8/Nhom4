@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th6 06, 2025 lúc 05:55 AM
+-- Thời gian đã tạo: Th6 27, 2025 lúc 09:14 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -106,6 +106,9 @@ CREATE TABLE `reservations` (
   `reservation_time` time NOT NULL,
   `number_of_guests` int(11) NOT NULL,
   `special_requests` text NOT NULL,
+  `status` varchar(50) DEFAULT 'confirmed',
+  `total_price` double DEFAULT 0,
+  `payment_status` varchar(50) DEFAULT 'unpaid',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `table_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -114,9 +117,46 @@ CREATE TABLE `reservations` (
 -- Đang đổ dữ liệu cho bảng `reservations`
 --
 
-INSERT INTO `reservations` (`id`, `customer_name`, `customer_email`, `customer_phone`, `reservation_date`, `reservation_time`, `number_of_guests`, `special_requests`, `created_at`, `table_id`) VALUES
-(1, 'nam', 'nam@gmail.com', '0944082389', '2025-06-09', '18:30:00', 2, 'tôi muốn tạo một bất ngờ', '2025-05-29 15:41:34', 0),
-(2, 'fd', 'ds@gmail.com', '00000', '2025-12-09', '18:30:00', 4, '.....', '2025-06-03 03:11:54', 0);
+INSERT INTO `reservations` (`id`, `customer_name`, `customer_email`, `customer_phone`, `reservation_date`, `reservation_time`, `number_of_guests`, `special_requests`, `status`, `total_price`, `payment_status`, `created_at`, `table_id`) VALUES
+(1, 'nam', 'nam@gmail.com', '0944082389', '2025-06-09', '18:30:00', 2, 'tôi muốn tạo một bất ngờ', 'confirmed', 0, 'paid', '2025-05-29 15:41:34', 1),
+(2, 'fd', 'ds@gmail.com', '00000', '2025-12-09', '18:30:00', 4, '.....', 'confirmed', 0, 'paid', '2025-06-03 03:11:54', 1),
+(3, 'nam', 'nam@gmail.com', '0944082389', '2025-06-27', '19:00:00', 4, 'Món đã đặt:\n- Bánh Mì Bơ Tỏi x 1\n- Súp Bí Đỏ x 1\n- Salad Trái Cây x 1\n- Khoai Tây Chiên Phô Mai x 1\n', 'confirmed', 315000, 'paid', '2025-06-27 07:10:11', 1),
+(4, 'nma', '132@gmail.com', '0366464', '2025-06-27', '19:00:00', 2, 'Món đã đặt:\n- Khoai Tây Chiên Phô Mai x 1\n', 'cancelled', 75000, 'unpaid', '2025-06-27 07:13:44', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `tables`
+--
+
+CREATE TABLE `tables` (
+  `id` int(11) NOT NULL,
+  `table_number` varchar(50) NOT NULL,
+  `capacity` int(11) NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT 'available'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `tables`
+--
+
+INSERT INTO `tables` (`id`, `table_number`, `capacity`, `location`, `status`) VALUES
+(1, 'OUT-01', 4, 'outdoor', 'available'),
+(2, 'OUT-02', 4, 'outdoor', 'available'),
+(3, 'OUT-03', 4, 'outdoor', 'available'),
+(4, 'OUT-04', 4, 'outdoor', 'available'),
+(5, 'OUT-05', 4, 'outdoor', 'available'),
+(6, 'IN-01', 6, 'indoor', 'available'),
+(7, 'IN-02', 6, 'indoor', 'available'),
+(8, 'IN-03', 6, 'indoor', 'available'),
+(9, 'IN-04', 6, 'indoor', 'available'),
+(10, 'IN-05', 6, 'indoor', 'available'),
+(11, 'IN-06', 6, 'indoor', 'available'),
+(12, 'IN-07', 6, 'indoor', 'available'),
+(13, 'IN-08', 6, 'indoor', 'available'),
+(14, 'IN-09', 6, 'indoor', 'available'),
+(15, 'IN-10', 6, 'indoor', 'available');
 
 -- --------------------------------------------------------
 
@@ -128,6 +168,8 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone_number` varchar(20) DEFAULT NULL,
   `role` varchar(50) DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -135,9 +177,10 @@ CREATE TABLE `users` (
 -- Đang đổ dữ liệu cho bảng `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`) VALUES
-(1, 'admin', 'admin123', 'admin'),
-(2, 'user', 'user123', 'user');
+INSERT INTO `users` (`id`, `username`, `password`, `email`, `phone_number`, `role`) VALUES
+(1, 'admin', 'admin123', NULL, NULL, 'admin'),
+(2, 'user', 'user123', NULL, NULL, 'user'),
+(3, 'nam', '123456', 'nam@gmail.com', '0944082389', 'user');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -162,11 +205,19 @@ ALTER TABLE `reservations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Chỉ mục cho bảng `tables`
+--
+ALTER TABLE `tables`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `table_number` (`table_number`);
+
+--
 -- Chỉ mục cho bảng `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT cho các bảng đã đổ
@@ -182,19 +233,25 @@ ALTER TABLE `chefs`
 -- AUTO_INCREMENT cho bảng `dishes`
 --
 ALTER TABLE `dishes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT cho bảng `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT cho bảng `tables`
+--
+ALTER TABLE `tables`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
