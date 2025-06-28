@@ -1,3 +1,4 @@
+// NavigationPanel.java
 package restaurantmanagement;
 
 import admincontroller.AdminPage;
@@ -28,7 +29,7 @@ public class NavigationPanel extends JPanel {
         JButton contactButton = createNavButton("Liên Hệ", "Contact");
 
         adminButton = createNavButton("Admin", null);
-        JButton logoutButton = createNavButton("Đăng Xuất", null);
+        JButton logoutButton = createNavButton("Đăng Xuất", null); // This is the button
 
         // Add buttons to the panel
         add(homeButton);
@@ -36,57 +37,68 @@ public class NavigationPanel extends JPanel {
         add(reservationButton);
         add(aboutButton);
         add(contactButton);
-        add(adminButton);
-        add(logoutButton);
 
-        updateAdminButtonVisibility();
-    }
-
-    private JButton createNavButton(String text, String panelName) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setForeground(Color.WHITE);
-        button.setBackground(new Color(52, 73, 94)); // Default background
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Hover effect
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent evt) {
-                button.setBackground(new Color(60, 80, 100)); // Darker on hover
-            }
-
-            @Override
-            public void mouseExited(MouseEvent evt) {
-                button.setBackground(new Color(52, 73, 94));
-            }
-        });
-
-        button.addActionListener(new ActionListener() {
+        // Add action listener for Admin button
+        adminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (panelName != null) {
-                    mainFrame.showPanel(panelName);
-                } else {
-                    if (text.equals("Đăng Xuất")) {
-                        logout();
-                    } else if (text.equals("Admin")) {
-                        if (LoginSession.isAdmin()) {
-                            AdminPage adminPage = new AdminPage();
-                            adminPage.setVisible(true);
-                        } else {
-                            JOptionPane.showMessageDialog(mainFrame,
+                if (mainFrame != null) {
+                    // Check if current user is admin before showing Admin page
+                    if (LoginSession.isAdmin()) {
+                        mainFrame.showPanel("Admin");
+                    } else {
+                        JOptionPane.showMessageDialog(mainFrame,
                                 "Bạn không có quyền truy cập trang quản trị.",
                                 "Lỗi Quyền Truy Cập",
                                 JOptionPane.WARNING_MESSAGE);
-                        }
                     }
                 }
             }
         });
+        add(adminButton); // Add admin button
 
+        // Add action listener for Logout button
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout(); // Call the logout method
+            }
+        });
+        add(logoutButton); // Add logout button
+
+        updateAdminButtonVisibility(); // Initial visibility check
+    }
+
+    private JButton createNavButton(String text, String panelName) {
+        JButton button = new JButton(text);
+        button.setForeground(Color.WHITE);
+        button.setBackground(new Color(52, 73, 94)); // Darker background for consistency
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+
+        // Hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(new Color(76, 110, 143)); // Lighter on hover
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(new Color(52, 73, 94)); // Back to original
+            }
+        });
+
+        // Action listener for navigation
+        if (panelName != null) {
+            button.addActionListener(e -> {
+                if (mainFrame != null) {
+                    mainFrame.showPanel(panelName);
+                }
+            });
+        }
         return button;
     }
 
@@ -99,14 +111,9 @@ public class NavigationPanel extends JPanel {
     }
 
     private void logout() {
-        LoginSession.logout(); // Clear the session
-
-        // Instead of disposing the main frame, instruct it to show the login panel.
+        // Call the handleLogout method in Main to perform a full application reset
         if (mainFrame != null) {
-            mainFrame.showPanel("Login");
-            // You might also want to clear fields on the LoginPage here,
-            // but that would require a public method in LoginPage and access to its instance
-            // from Main, or a dedicated method in Main to handle login page reset.
+            mainFrame.handleLogout();
         } else {
             System.out.println("Lỗi: mainFrame là null trong NavigationPanel. Không thể chuyển về trang đăng nhập.");
             JOptionPane.showMessageDialog(this,

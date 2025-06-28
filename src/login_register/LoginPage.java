@@ -1,3 +1,4 @@
+// LoginPage.java
 package login_register;
 
 import javax.swing.*;
@@ -103,9 +104,11 @@ public class LoginPage extends JPanel {
     private void attemptLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
+        messageLabel.setText(""); // Clear previous messages
 
         if (username.isEmpty() || password.isEmpty()) {
-            messageLabel.setText("Vui lòng điền đầy đủ tên đăng nhập và mật khẩu.");
+            messageLabel.setText("Vui lòng nhập tên đăng nhập và mật khẩu.");
+            messageLabel.setForeground(Color.RED);
             return;
         }
 
@@ -121,20 +124,25 @@ public class LoginPage extends JPanel {
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                String storedPassword = rs.getString("password");
+                String storedHashedPassword = rs.getString("password");
                 String role = rs.getString("role");
 
-                if (password.equals(storedPassword)) {
-                    LoginSession.setLoggedInUser(username, role);
-                    messageLabel.setText("Đăng nhập thành công!");
-                    messageLabel.setForeground(new Color(34, 139, 34));
-                    JOptionPane.showMessageDialog(this, "Đăng nhập thành công với vai trò: " + role, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                // Giả định storedHashedPassword là mật khẩu gốc (chưa hash) hoặc đã được hash
+                // Trong ứng dụng thực tế, bạn nên sử dụng thư viện mã hóa mạnh mẽ (như BCrypt)
+                // để kiểm tra mật khẩu đã hash.
+                // Ở đây, giả định mật khẩu nhập vào khớp trực tiếp với mật khẩu lưu trong DB
+                // hoặc là một phép so sánh đơn giản sau khi hash nếu storedHashedPassword đã được hash.
+                // Để đơn giản trong ví dụ này, chúng ta so sánh trực tiếp (không khuyến khích cho sản phẩm thật).
+                if (password.equals(storedHashedPassword)) { // So sánh trực tiếp
                     if (mainFrame != null) {
-                        mainFrame.showPanel("Home"); // Chuyển đến trang chủ sau khi đăng nhập thành công
+                        LoginSession.setLoggedInUser(username, role); // Set session first
+                        mainFrame.setupApplicationPanels(); // Re-initialize all panels for a clean state
+                        mainFrame.showPanel("Home");
+                        messageLabel.setText("Đăng nhập thành công!");
+                        messageLabel.setForeground(new Color(34, 139, 34)); // ForestGreen
                     } else {
-                        System.out.println("mainFrame is null — không thể chuyển trang. " +
-                                           "Đảm bảo LoginPage được khởi tạo với một instance Main hợp lệ.");
-                        JOptionPane.showMessageDialog(this, "Đăng nhập thành công nhưng không thể chuyển trang. " +
+                        JOptionPane.showMessageDialog(this,
+                                "Lỗi: mainFrame không được khởi tạo, không thể chuyển trang. " +
                                 "Vui lòng khởi động lại ứng dụng.", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {

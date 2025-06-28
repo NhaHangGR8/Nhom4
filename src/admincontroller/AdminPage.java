@@ -1,33 +1,29 @@
+// AdminPage.java
 package admincontroller;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import restaurantmanagement.ReservationPage;
-import restaurantmanagement.TableStatusRefreshListener; // Import the interface
+import restaurantmanagement.TableStatusRefreshListener;
 import admincontroller.PaymentManagementPage;
+import restaurantmanagement.Main; // Import Main class for window ancestor
 
-public class AdminPage extends JFrame {
+// AdminPage should extend JPanel, not JFrame
+public class AdminPage extends JPanel { // Changed from JFrame to JPanel
 
-    // AdminPage needs a reference to the ReservationPage instance
-    // that the user is currently viewing, to enable refresh.
-    private ReservationPage reservationPageInstance; // Field to hold the reference
-
-    // NEW: Field to hold the TableListPage instance
+    private ReservationPage reservationPageInstance;
     private TableListPage tableListPageInstance;
 
-    // Modified constructor to accept ReservationPage
-    public AdminPage(ReservationPage reservationPage) {
-        this.reservationPageInstance = reservationPage; // Store the ReservationPage instance
+    // Constructor to accept ReservationPage and TableListPage instances from Main
+    public AdminPage(ReservationPage reservationPage, TableListPage tableListPage) {
+        this.reservationPageInstance = reservationPage;
+        this.tableListPageInstance = tableListPage;
 
-        // NEW: Initialize the TableListPage instance here
-        this.tableListPageInstance = new TableListPage(); // Create a single instance
-
-        setTitle("Trang quản trị Admin");
-        setSize(450, 550); // Tăng kích thước để phù hợp với các nút mới
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        // Removed JFrame specific settings: setTitle, setSize, setLocationRelativeTo, setDefaultCloseOperation
         setLayout(new GridLayout(8, 1, 15, 15)); // Thay đổi GridLayout thành 8 hàng, 1 cột để thêm các nút mới
+        setBackground(new Color(240, 240, 240)); // Set a background for the panel
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add some padding
 
         // Cấu hình các nút với style nhất quán
         Font buttonFont = new Font("Arial", Font.BOLD, 16);
@@ -100,7 +96,7 @@ public class AdminPage extends JFrame {
         exitButton.setFocusPainted(false);
         exitButton.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        // Thêm các nút vào JFrame theo thứ tự mới
+        // Thêm các nút vào JPanel
         add(addDishButton);
         add(editDishButton);
         add(deleteDishButton);
@@ -112,21 +108,19 @@ public class AdminPage extends JFrame {
 
         // Add action listeners
         addDishButton.addActionListener(e -> {
-            AddMenuItemDialog dialog = new AddMenuItemDialog(this, "Thêm món ăn mới", true);
+            // Use SwingUtilities.getWindowAncestor(this) to get the parent Frame for dialogs
+            AddMenuItemDialog dialog = new AddMenuItemDialog((JFrame) (Frame) SwingUtilities.getWindowAncestor(this), "Thêm món ăn mới", true);
             dialog.setVisible(true);
-            // Có thể thêm logic làm mới bảng món ăn nếu AdminPage có hiển thị danh sách món
         });
 
         editDishButton.addActionListener(e -> {
-            EditDishDialog dialog = new EditDishDialog(this, "Sửa món ăn", true);
+            EditDishDialog dialog = new EditDishDialog((JFrame) (Frame) SwingUtilities.getWindowAncestor(this), "Sửa món ăn", true);
             dialog.setVisible(true);
-            // Có thể thêm logic làm mới bảng món ăn nếu AdminPage có hiển thị danh sách món
         });
 
         deleteDishButton.addActionListener(e -> {
-            DeleteDishDialog dialog = new DeleteDishDialog(this, "Xóa món ăn", true);
+            DeleteDishDialog dialog = new DeleteDishDialog((JFrame) (Frame) SwingUtilities.getWindowAncestor(this), "Xóa món ăn", true);
             dialog.setVisible(true);
-            // Có thể thêm logic làm mới bảng món ăn nếu AdminPage có hiển thị danh sách món
         });
 
         viewStatsButton.addActionListener(e -> {
@@ -134,37 +128,49 @@ public class AdminPage extends JFrame {
             statsPage.setVisible(true);
         });
 
-        // Pass tableListPageInstance to PaymentManagementPage
         paymentBtn.addActionListener(e -> {
-            PaymentManagementPage paymentPage = new PaymentManagementPage(tableListPageInstance); // Pass the instance
+            // PaymentManagementPage still needs tableListPageInstance for refreshing
+            PaymentManagementPage paymentPage = new PaymentManagementPage(tableListPageInstance);
             paymentPage.setVisible(true);
         });
 
-        // Action Listener for "Quản lý Hủy Đặt Bàn" button
         manageReservationsButton.addActionListener(e -> {
-            // Pass the TableListPage instance directly as the refresh listener
-            AdminTableCancellationPage adminCancelPage = new AdminTableCancellationPage(tableListPageInstance); // Passing TableListPage
+            // AdminTableCancellationPage also needs tableListPageInstance for refreshing
+            AdminTableCancellationPage adminCancelPage = new AdminTableCancellationPage(tableListPageInstance);
             adminCancelPage.setVisible(true);
         });
 
-        // Action Listener for "Xem Trạng Thái Bàn" button
         viewTableStatusButton.addActionListener(e -> {
-            tableListPageInstance.setVisible(true); // Show the same instance of TableListPage
-            tableListPageInstance.refreshTableStatus(); // Ensure it refreshes when opened
+            // Show the TableListPage and ensure it refreshes
+            if (tableListPageInstance != null) {
+                tableListPageInstance.refreshTableStatus(); // Refresh before showing
+                tableListPageInstance.setVisible(true);
+            }
         });
 
-        exitButton.addActionListener(e -> dispose());
+        exitButton.addActionListener(e -> {
+            // Assuming "Thoát" means to go back to the previous panel in Main.
+            // We can explicitly tell Main to show the Home panel or previous.
+            Component ancestor = SwingUtilities.getWindowAncestor(this);
+            if (ancestor instanceof Main) {
+                ((Main) ancestor).showPanel("Home"); // Switch back to Home page
+            }
+            // If not running within Main, this JPanel doesn't need to do anything
+            // as it's not a top-level window to dispose.
+        });
     }
 
-    // No-arg constructor for AdminPage if it's sometimes launched without a ReservationPage reference
+    // Default constructor if no ReservationPage or TableListPage is explicitly passed
+    // It's generally better to make sure Main always passes these,
+    // but this can be kept for backward compatibility if needed in other parts of the code.
     public AdminPage() {
-        this(null); // Call the main constructor with a null ReservationPage instance
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // For testing AdminPage in isolation, pass null or a dummy ReservationPage
-            new AdminPage(null).setVisible(true);
-        });
+        // This constructor might be called if AdminPage is created without specific instances
+        // In a well-structured app, Main should manage and pass these instances.
+        // For now, if this is called, it might lead to issues if TableListPage is not initialized.
+        // This should ideally be removed if Main always provides the instances.
+        // If this is used, consider how tableListPageInstance will be set.
+        // For simplicity and to avoid NullPointer, we can initialize it here,
+        // but it will create a new instance, potentially leading to inconsistent data.
+        this(null, new TableListPage()); // Creates a new TableListPage if not passed.
     }
 }
