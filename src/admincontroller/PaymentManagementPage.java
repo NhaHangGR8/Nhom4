@@ -242,6 +242,28 @@ public class PaymentManagementPage extends JFrame {
         int tableId = (int) tableModel.getValueAt(selectedRow, 6);
         String totalPrice = (String) tableModel.getValueAt(selectedRow, 8); // Already formatted as string
 
+        String specialRequests = "";
+        Connection conn = null;
+        try {
+            conn = DatabaseHelper.getConnection();
+            String sql = "SELECT special_requests FROM reservations WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                specialRequests = rs.getString("special_requests");
+            }
+            rs.close();
+            pstmt.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy thông tin yêu cầu đặc biệt: " + ex.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+            return; // Exit if there's a DB error
+        } finally {
+            DatabaseHelper.closeConnection(conn);
+        }
+
+
         // Format date and time for invoice
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
@@ -257,6 +279,25 @@ public class PaymentManagementPage extends JFrame {
         invoiceContent.append(String.format("Hóa đơn được xuất vào ngày: %s\n", formattedDate));
         invoiceContent.append(String.format("Giờ: %s\n", formattedTime));
         invoiceContent.append(String.format("Bàn số: %d\n", tableId));
+        invoiceContent.append("------------------------------\n");
+
+        // Add dish statistics if available in special_requests
+        if (specialRequests != null && !specialRequests.isEmpty()) {
+            // Assuming the format is: "Món đã đặt:\n- DishName x Quantity\n- AnotherDish x Quantity"
+            // We need to parse this. A simpler approach for the invoice would be to just append the "Món đã đặt:" section.
+            
+            // Find the "Món đã đặt:" section
+            int dishSectionStartIndex = specialRequests.indexOf("Món đã đặt:");
+            if (dishSectionStartIndex != -1) {
+                String dishDetails = specialRequests.substring(dishSectionStartIndex);
+                invoiceContent.append(dishDetails).append("\n");
+            } else {
+                // If "Món đã đặt:" header is not found, just append the full requests.
+                // This might include other special requests too.
+                invoiceContent.append("Yêu cầu đặc biệt:\n").append(specialRequests).append("\n");
+            }
+        }
+        
         invoiceContent.append("------------------------------\n");
         invoiceContent.append(String.format("TỔNG CỘNG: %s\n", totalPrice));
         invoiceContent.append("------------------------------\n");
