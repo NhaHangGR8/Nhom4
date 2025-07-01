@@ -9,11 +9,17 @@ import restaurantmanagement.TableStatusRefreshListener;
 import admincontroller.PaymentManagementPage;
 import restaurantmanagement.Main; // Import Main class for window ancestor
 
+// Import for dish management and statistics dialogs/pages
+import admincontroller.AddMenuItemDialog;
+import admincontroller.DeleteDishDialog;
+import admincontroller.EditDishDialog;
+import admincontroller.StatisticsPage; // Assuming this is the correct class name for statistics
+
 // AdminPage should extend JPanel, not JFrame
-public class AdminPage extends JPanel { // Changed from JFrame to JPanel
+public class AdminPage extends JPanel {
 
     private ReservationPage reservationPageInstance;
-    private TableListPage tableListPageInstance;
+    private TableListPage tableListPageInstance; // You need to ensure TableListPage is properly initialized.
 
     // Constructor to accept ReservationPage and TableListPage instances from Main
     public AdminPage(ReservationPage reservationPage, TableListPage tableListPage) {
@@ -21,7 +27,7 @@ public class AdminPage extends JPanel { // Changed from JFrame to JPanel
         this.tableListPageInstance = tableListPage;
 
         // Removed JFrame specific settings: setTitle, setSize, setLocationRelativeTo, setDefaultCloseOperation
-        setLayout(new GridLayout(8, 1, 15, 15)); // Thay đổi GridLayout thành 8 hàng, 1 cột để thêm các nút mới
+        setLayout(new GridLayout(10, 1, 15, 15)); // Changed GridLayout to 10 rows, 1 column for new buttons
         setBackground(new Color(240, 240, 240)); // Set a background for the panel
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add some padding
 
@@ -29,135 +35,129 @@ public class AdminPage extends JPanel { // Changed from JFrame to JPanel
         Font buttonFont = new Font("Arial", Font.BOLD, 16);
         Dimension buttonSize = new Dimension(250, 50); // Kích thước cố định cho nút
 
-        // Nút Thêm món ăn
-        JButton addDishButton = new JButton("Thêm món ăn");
+        // Nút Thêm món
+        JButton addDishButton = new JButton("Thêm Món Ăn");
         addDishButton.setFont(buttonFont);
         addDishButton.setPreferredSize(buttonSize);
-        addDishButton.setBackground(new Color(144, 238, 144)); // LightGreen
-        addDishButton.setForeground(Color.BLACK);
-        addDishButton.setFocusPainted(false);
-        addDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
+        addDishButton.setBackground(new Color(52, 152, 219)); // Blue
+        addDishButton.setForeground(Color.WHITE);
+        addDishButton.addActionListener(e -> {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            AddMenuItemDialog addDishDialog = new AddMenuItemDialog(parentFrame, "Thêm Món Ăn Mới", true);
+            addDishDialog.setVisible(true);
+            // Optionally, refresh a dish display table if AdminPage had one
+        });
+        add(addDishButton);
 
-        // Nút Sửa món ăn
-        JButton editDishButton = new JButton("Sửa món ăn");
+        // Nút Sửa món
+        JButton editDishButton = new JButton("Sửa Món Ăn");
         editDishButton.setFont(buttonFont);
         editDishButton.setPreferredSize(buttonSize);
-        editDishButton.setBackground(new Color(255, 255, 153)); // Light Yellow
-        editDishButton.setForeground(Color.BLACK);
-        editDishButton.setFocusPainted(false);
-        editDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
+        editDishButton.setBackground(new Color(46, 204, 113)); // Green
+        editDishButton.setForeground(Color.WHITE);
+        editDishButton.addActionListener(e -> {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            EditDishDialog editDishDialog = new EditDishDialog(parentFrame, "Sửa Món Ăn", true);
+            editDishDialog.setVisible(true);
+            // Optionally, refresh a dish display table
+        });
+        add(editDishButton);
 
-        // Nút Xóa món ăn
-        JButton deleteDishButton = new JButton("Xóa món ăn");
+        // Nút Xóa món
+        JButton deleteDishButton = new JButton("Xóa Món Ăn");
         deleteDishButton.setFont(buttonFont);
         deleteDishButton.setPreferredSize(buttonSize);
-        deleteDishButton.setBackground(new Color(255, 153, 153)); // Light Red
-        deleteDishButton.setForeground(Color.BLACK);
-        deleteDishButton.setFocusPainted(false);
-        deleteDishButton.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        JButton viewStatsButton = new JButton("Xem thống kê");
-        viewStatsButton.setFont(buttonFont);
-        viewStatsButton.setPreferredSize(buttonSize);
-        viewStatsButton.setBackground(new Color(144, 238, 144)); // LightGreen
-        viewStatsButton.setForeground(Color.BLACK);
-        viewStatsButton.setFocusPainted(false);
-        viewStatsButton.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        JButton manageReservationsButton = new JButton("Quản lý Hủy Đặt Bàn");
-        manageReservationsButton.setFont(buttonFont);
-        manageReservationsButton.setPreferredSize(buttonSize);
-        manageReservationsButton.setBackground(new Color(144, 238, 144)); // LightGreen
-        manageReservationsButton.setForeground(Color.BLACK);
-        manageReservationsButton.setFocusPainted(false);
-        manageReservationsButton.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        JButton paymentBtn = new JButton("Quản lý Thanh toán");
-        paymentBtn.setFont(buttonFont);
-        paymentBtn.setPreferredSize(buttonSize);
-        paymentBtn.setBackground(new Color(144, 238, 144)); // Green
-        paymentBtn.setForeground(Color.BLACK);
-        paymentBtn.setFocusPainted(false);
-        paymentBtn.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        JButton viewTableStatusButton = new JButton("Xem Trạng Thái Bàn");
-        viewTableStatusButton.setFont(buttonFont);
-        viewTableStatusButton.setPreferredSize(buttonSize);
-        viewTableStatusButton.setBackground(new Color(144, 238, 144)); // LightGreen
-        viewTableStatusButton.setForeground(Color.BLACK);
-        viewTableStatusButton.setFocusPainted(false);
-        viewTableStatusButton.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        JButton exitButton = new JButton("Thoát");
-        exitButton.setFont(buttonFont);
-        exitButton.setPreferredSize(buttonSize);
-        exitButton.setBackground(new Color(255, 99, 71)); // Tomato
-        exitButton.setForeground(Color.WHITE);
-        exitButton.setFocusPainted(false);
-        exitButton.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        // Thêm các nút vào JPanel
-        add(addDishButton);
-        add(editDishButton);
-        add(deleteDishButton);
-        add(viewStatsButton);
-        add(manageReservationsButton);
-        add(paymentBtn);
-        add(viewTableStatusButton);
-        add(exitButton);
-
-        // Add action listeners
-        addDishButton.addActionListener(e -> {
-            // Use SwingUtilities.getWindowAncestor(this) to get the parent Frame for dialogs
-            AddMenuItemDialog dialog = new AddMenuItemDialog((JFrame) (Frame) SwingUtilities.getWindowAncestor(this), "Thêm món ăn mới", true);
-            dialog.setVisible(true);
-        });
-
-        editDishButton.addActionListener(e -> {
-            EditDishDialog dialog = new EditDishDialog((JFrame) (Frame) SwingUtilities.getWindowAncestor(this), "Sửa món ăn", true);
-            dialog.setVisible(true);
-        });
-
+        deleteDishButton.setBackground(new Color(231, 76, 60)); // Red-ish
+        deleteDishButton.setForeground(Color.WHITE);
         deleteDishButton.addActionListener(e -> {
-            DeleteDishDialog dialog = new DeleteDishDialog((JFrame) (Frame) SwingUtilities.getWindowAncestor(this), "Xóa món ăn", true);
-            dialog.setVisible(true);
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            DeleteDishDialog deleteDishDialog = new DeleteDishDialog(parentFrame, "Xóa Món Ăn", true);
+            deleteDishDialog.setVisible(true);
+            // Optionally, refresh a dish display table
         });
+        add(deleteDishButton);
 
-        viewStatsButton.addActionListener(e -> {
-            StatisticsPage statsPage = new StatisticsPage();
-            statsPage.setVisible(true);
+        // Nút Quản lý bàn ăn (TableListPage)
+        JButton manageTablesButton = new JButton("Quản lý Bàn Ăn");
+        manageTablesButton.setFont(buttonFont);
+        manageTablesButton.setPreferredSize(buttonSize);
+        manageTablesButton.setBackground(new Color(155, 89, 182)); // Purple
+        manageTablesButton.setForeground(Color.WHITE);
+        manageTablesButton.addActionListener(e -> {
+            if (tableListPageInstance != null) {
+                tableListPageInstance.setVisible(true); // Open TableListPage JFrame
+            } else {
+                JOptionPane.showMessageDialog(this, "TableListPage chưa được khởi tạo.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         });
+        add(manageTablesButton);
 
-        paymentBtn.addActionListener(e -> {
-            // PaymentManagementPage still needs tableListPageInstance for refreshing
+        // Nút Quản lý Thanh toán
+        JButton managePaymentsButton = new JButton("Quản lý Thanh Toán");
+        managePaymentsButton.setFont(buttonFont);
+        managePaymentsButton.setPreferredSize(buttonSize);
+        managePaymentsButton.setBackground(new Color(22, 160, 133)); // Dark Green
+        managePaymentsButton.setForeground(Color.WHITE);
+        managePaymentsButton.addActionListener(e -> {
+            // PaymentManagementPage cần TableListPage để refresh trạng thái bàn
             PaymentManagementPage paymentPage = new PaymentManagementPage(tableListPageInstance);
             paymentPage.setVisible(true);
         });
+        add(managePaymentsButton);
 
-        manageReservationsButton.addActionListener(e -> {
-            // AdminTableCancellationPage also needs tableListPageInstance for refreshing
-            AdminTableCancellationPage adminCancelPage = new AdminTableCancellationPage(tableListPageInstance);
-            adminCancelPage.setVisible(true);
+        // NÚT Quản lý Nhân viên (Integrated EmployeeManagementPage)
+        JButton manageEmployeesButton = new JButton("Quản lý Nhân Viên");
+        manageEmployeesButton.setFont(buttonFont);
+        manageEmployeesButton.setPreferredSize(buttonSize);
+        manageEmployeesButton.setBackground(new Color(230, 126, 34)); // Dark Orange
+        manageEmployeesButton.setForeground(Color.WHITE);
+        manageEmployeesButton.addActionListener(e -> {
+            // Open EmployeeManagementPage when the button is clicked
+            EmployeeManagementPage employeePage = new EmployeeManagementPage();
+            employeePage.setVisible(true);
         });
+        add(manageEmployeesButton);
 
-        viewTableStatusButton.addActionListener(e -> {
-            // Show the TableListPage and ensure it refreshes
-            if (tableListPageInstance != null) {
-                tableListPageInstance.refreshTableStatus(); // Refresh before showing
-                tableListPageInstance.setVisible(true);
-            }
+        // Nút Báo cáo và Thống kê
+        JButton reportsButton = new JButton("Báo cáo & Thống kê");
+        reportsButton.setFont(buttonFont);
+        reportsButton.setPreferredSize(buttonSize);
+        reportsButton.setBackground(new Color(52, 73, 94)); // Dark Blue/Grey
+        reportsButton.setForeground(Color.WHITE);
+        reportsButton.addActionListener(e -> {
+            // Mở StatisticsPage
+            StatisticsPage statsPage = new StatisticsPage();
+            statsPage.setVisible(true);
         });
+        add(reportsButton);
 
-        exitButton.addActionListener(e -> {
-            // Assuming "Thoát" means to go back to the previous panel in Main.
-            // We can explicitly tell Main to show the Home panel or previous.
+        // Nút Đăng xuất
+        JButton logoutButton = new JButton("Đăng xuất");
+        logoutButton.setFont(buttonFont);
+        logoutButton.setPreferredSize(buttonSize);
+        logoutButton.setBackground(new Color(192, 57, 43)); // Red
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.addActionListener(e -> {
             Component ancestor = SwingUtilities.getWindowAncestor(this);
             if (ancestor instanceof Main) {
                 ((Main) ancestor).showPanel("Home"); // Switch back to Home page
+                // Optionally, clear login session here if "Logout" means actual logout
+                // LoginSession.logout();
             }
-            // If not running within Main, this JPanel doesn't need to do anything
-            // as it's not a top-level window to dispose.
         });
+        add(logoutButton);
+
+        // Nút Thoát ứng dụng (mới)
+        JButton exitApplicationButton = new JButton("Thoát Ứng Dụng");
+        exitApplicationButton.setFont(buttonFont);
+        exitApplicationButton.setPreferredSize(buttonSize);
+        exitApplicationButton.setBackground(new Color(100, 100, 100)); // Dark Grey
+        exitApplicationButton.setForeground(Color.WHITE);
+        exitApplicationButton.addActionListener(e -> {
+            // Thoát toàn bộ ứng dụng
+            System.exit(0);
+        });
+        add(exitApplicationButton);
     }
 
     // Default constructor if no ReservationPage or TableListPage is explicitly passed
